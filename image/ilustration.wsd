@@ -1,0 +1,49 @@
+@startuml Ilustration
+node NATS {
+  package Stream {
+    json MessageInStream {
+      "1":"Order 1",
+      "2":"Order 2",
+      "3":"Order 3",
+      "4":"Order 4"
+    }
+  }
+
+  package Consumer {
+    json MessageInConsumer {
+      "1":"Order 1 (✅ Ack)",
+      "2":"Order 2 (✅ Ack)",
+      "3":"Order 3 (✅ Ack)",
+      "4":"Order 4 (❌ Unprocessed - will resend to client nest until ack)"
+    }
+  }
+}
+
+node Subject {
+  rectangle order.create {
+
+  }
+}
+
+node AnotherClient {
+  json MessageInAnotherClient {
+    "order.created":"Message 5 (Will send in the future 🚀)"
+  }
+}
+
+node NestClient {
+  json MessageInNestClient {
+    "1":"Order 1 (✅ I'm send Ack)",
+    "2":"Order 2 (✅ I'm send Ack)",
+    "3":"Order 3 (✅ I'm send Ack)",
+    "4":"Order 4 (✅ I'm not send Ack!)",
+    "4":"Order 4 (✅ I'm not send Ack!)",
+    "4":"Order 4 (✅ I'm not send Ack!)"
+  }
+}
+
+Consumer --> NestClient
+AnotherClient --> Subject
+Subject --> Stream
+Stream -> Consumer
+@enduml
